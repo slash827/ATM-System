@@ -68,3 +68,19 @@ async def health_check():
         "environment": settings.environment,
         "debug": settings.debug
     }
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    
+    # Using 8000 port as defualt
+    port = int(os.environ.get("PORT", 8000))
+    
+    print(f"Starting server on port {port}")  # Debug message
+    
+    uvicorn.run(
+        "main:app", 
+        host="0.0.0.0", 
+        port=port,
+        reload=False  # False in production
+    )
