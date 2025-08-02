@@ -1,51 +1,50 @@
 # Railway Deployment Guide
 
-## 🚀 **FIXED: Port Variable Expansion Issue**
+## � **CRITICAL FIX: Remove railway.toml**
 
-Railway isn't expanding `$PORT` properly in uvicorn commands. Here are the working solutions:
+**The issue**: Railway prioritizes `railway.toml` over `Procfile`, and the toml file had the broken `$PORT` syntax.
 
-### **Solution 1: Direct Python Execution (Recommended)**
+### **IMMEDIATE FIX (Choose One):**
+
+#### **Option 1: Delete railway.toml (Recommended)**
+```bash
+# Remove railway.toml to use Procfile only
+rm railway.toml
+git add .
+git commit -m "Remove railway.toml to use Procfile"
+git push
+```
+
+#### **Option 2: Both Files Fixed (Current State)**
+Both `railway.toml` and `Procfile` now use:
+```
+python main.py
+```
+
+### **Why This Happened**
+1. Railway prioritizes `railway.toml` over `Procfile`
+2. The toml file contained: `uvicorn main:app --port $PORT` 
+3. Railway wasn't expanding `$PORT` properly
+4. Using `python main.py` bypasses shell expansion
+
+### **Current File Contents**
 ```
 # Procfile
 web: python main.py
-```
-✅ **Uses main.py directly** - handles PORT environment variable internally
-✅ **Most reliable** - no shell expansion needed
 
-### **Solution 2: Python Startup Script**
-```
-# Procfile  
-web: python start_server.py
-```
-✅ **Enhanced error handling** - validates port values
-✅ **Debug output** - shows what port is being used
-
-### **Solution 3: Use Gunicorn (Production-Ready)**
-```
-# Procfile
-web: gunicorn main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
-```
-✅ **Production server** - more robust than uvicorn
-✅ **Better for deployment** - handles workers and scaling
-
-## 🔧 **Quick Fix**
-
-**Current Procfile should work:**
-```
-web: python main.py
+# railway.toml  
+[deploy]
+startCommand = "python main.py"
 ```
 
-If not, try the gunicorn approach:
-```
-web: gunicorn main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+## 🎯 **Recommended Action**
+
+**Delete railway.toml completely:**
+```bash
+rm railway.toml
 ```
 
-## 📋 **Why This Happens**
-
-The issue occurs because:
-- Railway's shell doesn't expand `$PORT` in uvicorn commands
-- Using Python directly bypasses shell expansion
-- `main.py` handles `os.environ.get("PORT")` correctly
+This ensures Railway uses only the Procfile, which is simpler and more reliable.
 
 ## 🧪 **Testing**
 Once deployed, test these endpoints:
