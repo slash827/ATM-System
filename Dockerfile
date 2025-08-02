@@ -1,6 +1,6 @@
 # Multi-stage build for better security and smaller image size
-# Use exact same Python version as development environment (3.11.2)
-FROM python:3.11.2-slim-bookworm as builder
+# Use Python 3.11 (compatible with development environment 3.11.2)
+FROM python:3.11-slim-bookworm as builder
 
 # Security: Update system packages and install minimal build dependencies
 RUN apt-get update && \
@@ -24,18 +24,28 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
     pip install --no-cache-dir --requirement requirements.txt && \
     pip audit --desc --output json || true
 
-# Runtime stage - use minimal distroless for security
-FROM gcr.io/distroless/python3-debian12:nonroot
+# Runtime stage - use Python slim for better compatibility
+FROM python:3.11-slim-bookworm
+
+# Security: Create non-root user
+RUN useradd --create-home --shell /bin/bash atm
+
+# Set working directory
+WORKDIR /app
+
+# Security: Set ownership
+RUN chown atm:atm /app
 
 # Copy Python virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Set working directory
-WORKDIR /app
-
 # Copy application code
 COPY . .
+
+# Security: Set ownership and switch to non-root user
+RUN chown -R atm:atm /app
+USER atm
 
 # Security: Set environment to production with secure defaults
 ENV ENVIRONMENT=production \
@@ -49,8 +59,9 @@ ENV ENVIRONMENT=production \
 # Expose port (non-privileged port)
 EXPOSE 8000
 
-# Note: Distroless images run as non-root by default and don't have curl for healthcheck
-# Use Python-based healthcheck or external monitoring instead
+# Health check (now available with shell)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import httpx; httpx.get('http://localhost:8000/health')" || exit 1
 
-# Run the application directly (no shell available in distroless)
+# Run the application
 CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

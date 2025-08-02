@@ -385,6 +385,8 @@ site/
 # README.md
 # requirements.txt
 # Dockerfile
+# Dockerfile.railway
+# RAILWAY_DEPLOY.md
 # docker-compose.yml
 # main.py
 # models.py
