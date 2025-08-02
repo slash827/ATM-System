@@ -1,7 +1,14 @@
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Path
+import sys
+from pathlib import Path as FilePath
+
+# Add parent directory to Python path for imports
+parent_dir = FilePath(__file__).parent.parent
+sys.path.insert(0, str(parent_dir))
+
 from models import BalanceResponse, TransactionResponse, WithdrawRequest, DepositRequest
 from database import db
-from exceptions import AccountNotFoundError, InsufficientFundsError, InvalidAmountError
+from exceptions import AccountNotFoundError, InsufficientFundsError
 from datetime import datetime
 
 # Create router (like Django urls.py)

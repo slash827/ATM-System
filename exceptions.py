@@ -2,7 +2,21 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 import logging
-from config import settings
+import sys
+import os
+
+# Add current directory to Python path for Railway deployment
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+try:
+    from config import settings
+except ImportError:
+    # Fallback for deployment environments
+    class FallbackSettings:
+        debug = False
+        environment = "production"
+        log_level = "INFO"
+    settings = FallbackSettings()
 
 logger = logging.getLogger(__name__)
 

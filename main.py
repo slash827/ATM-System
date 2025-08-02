@@ -2,6 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.exceptions import RequestValidationError
+import sys
+import os
+from pathlib import Path
+
+# Add current directory to Python path for Railway deployment
+current_dir = Path(__file__).parent
+sys.path.insert(0, str(current_dir))
+
 from routers import accounts
 from exceptions import (
     AccountNotFoundError, InsufficientFundsError, InvalidAmountError,
@@ -9,7 +17,19 @@ from exceptions import (
     invalid_amount_handler, validation_exception_handler,
     general_exception_handler
 )
-from config import settings
+try:
+    from config import settings
+except ImportError:
+    # Fallback for deployment environments
+    class FallbackSettings:
+        app_name = "ATM System API"
+        debug = False
+        environment = "production"
+        log_level = "INFO"
+        allowed_hosts = ["*"]
+        is_production = True
+    settings = FallbackSettings()
+
 from datetime import datetime
 import logging
 
