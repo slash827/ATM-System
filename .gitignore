@@ -388,6 +388,8 @@ site/
 # Dockerfile.railway
 # RAILWAY_DEPLOY.md
 # railway.toml
+# Procfile
+# main_railway.py
 # start_server.py
 # docker-compose.yml
 # main.py

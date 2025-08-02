@@ -1,46 +1,92 @@
 # Railway Deployment Guide
 
-## Quick Deploy to Railway
+## 🚀 **FIXED: Import and Port Errors**
 
-### 🚀 **FIXED: Port Variable Issue**
+If you're getting import errors or port issues, try these solutions in order:
 
-If you're getting `Error: '${PORT' is not a valid port number`, try these solutions:
+### **Solution 1: Use Procfile (Simplest)**
+Create a `Procfile` (already created):
+```
+web: uvicorn main:app --host 0.0.0.0 --port $PORT
+```
+Then **delete** `railway.toml` and let Railway use the Procfile.
 
-#### **Solution 1: Use the Startup Script (Recommended)**
+### **Solution 2: Use Railway-Specific Main File**
 ```toml
 # railway.toml
 [build]
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "python start_server.py"
+startCommand = "uvicorn main_railway:app --host 0.0.0.0 --port $PORT"
 ```
 
-#### **Solution 2: Shell Command Wrapper**
+### **Solution 3: Use Original Main with Fixed Command**
 ```toml
 # railway.toml
 [build]
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "sh -c 'uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}'"
+startCommand = "uvicorn main:app --host 0.0.0.0 --port $PORT"
 ```
 
-#### **Solution 3: Remove railway.toml (Let Railway Auto-detect)**
-Delete the `railway.toml` file and let Railway automatically detect your Python app.
+### **Solution 4: Auto-Detection**
+Delete both `railway.toml` and `Procfile` - let Railway auto-detect everything.
 
-### Environment Configuration
-Railway will automatically set:
+## 🔧 **Troubleshooting Import Errors**
+
+If you see import/module errors:
+1. **Check requirements.txt** - make sure all dependencies are listed
+2. **Use `main_railway.py`** - has better error handling and debugging
+3. **Check Railway logs** - look for specific import error messages
+
+## 📋 **Quick Fix Steps**
+
+### Option A: Use Procfile (Recommended)
+```bash
+# Delete railway.toml to use Procfile instead
+rm railway.toml
+git add .
+git commit -m "Use Procfile for Railway deployment"
+git push
+```
+
+### Option B: Use Railway-specific main
+```bash
+# Keep railway.toml but use main_railway.py
+git add .
+git commit -m "Add Railway-specific main file"
+git push
+```
+
+## 🧪 **Testing**
+Once deployed, test these endpoints:
+- **Root**: `https://your-app.railway.app/` 
+- **Health**: `https://your-app.railway.app/health`
+- **API Docs**: `https://your-app.railway.app/docs`
+- **Balance Check**: `https://your-app.railway.app/accounts/12345/balance`
+
+## 🔍 **Still Having Issues?**
+
+### Debug Information
+The `main_railway.py` file includes debug output. Check Railway logs for:
+- Import errors
+- Current working directory
+- Python path information
+- Available files
+
+### Environment Variables
+Railway automatically provides:
 - `PORT` - The port your app should listen on
 - `RAILWAY_*` - Various Railway-specific variables
 
-### Quick Start Steps
-1. **Push your code** to GitHub
-2. **Connect to Railway** 
-3. **Choose one of the solutions above**
-4. **Deploy!**
-
-### Testing
+### Last Resort
+If nothing works:
+1. Delete `railway.toml` 
+2. Delete `Procfile`
+3. Let Railway auto-detect your Python app
+4. Should work with minimal configuration
 Once deployed, test these endpoints:
 - **Root**: `https://your-app.railway.app/` 
 - **Health**: `https://your-app.railway.app/health`
