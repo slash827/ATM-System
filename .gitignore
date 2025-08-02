@@ -387,7 +387,9 @@ site/
 # Dockerfile
 # Dockerfile.railway
 # RAILWAY_DEPLOY.md
-# railway.toml
+# RAILWAY_DEPLOY_FIXED.md
+# railway.toml (optional)
+# railway.json (optional) 
 # Procfile
 # Procfile.gunicorn
 # start.sh
