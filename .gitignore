@@ -389,6 +389,8 @@ site/
 # RAILWAY_DEPLOY.md
 # railway.toml
 # Procfile
+# Procfile.gunicorn
+# start.sh
 # main_railway.py
 # start_server.py
 # docker-compose.yml

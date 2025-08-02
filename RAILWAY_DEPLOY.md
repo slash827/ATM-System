@@ -1,64 +1,51 @@
 # Railway Deployment Guide
 
-## 🚀 **FIXED: Import and Port Errors**
+## 🚀 **FIXED: Port Variable Expansion Issue**
 
-If you're getting import errors or port issues, try these solutions in order:
+Railway isn't expanding `$PORT` properly in uvicorn commands. Here are the working solutions:
 
-### **Solution 1: Use Procfile (Simplest)**
-Create a `Procfile` (already created):
+### **Solution 1: Direct Python Execution (Recommended)**
 ```
-web: uvicorn main:app --host 0.0.0.0 --port $PORT
+# Procfile
+web: python main.py
 ```
-Then **delete** `railway.toml` and let Railway use the Procfile.
+✅ **Uses main.py directly** - handles PORT environment variable internally
+✅ **Most reliable** - no shell expansion needed
 
-### **Solution 2: Use Railway-Specific Main File**
-```toml
-# railway.toml
-[build]
-builder = "NIXPACKS"
-
-[deploy]
-startCommand = "uvicorn main_railway:app --host 0.0.0.0 --port $PORT"
+### **Solution 2: Python Startup Script**
 ```
-
-### **Solution 3: Use Original Main with Fixed Command**
-```toml
-# railway.toml
-[build]
-builder = "NIXPACKS"
-
-[deploy]
-startCommand = "uvicorn main:app --host 0.0.0.0 --port $PORT"
+# Procfile  
+web: python start_server.py
 ```
+✅ **Enhanced error handling** - validates port values
+✅ **Debug output** - shows what port is being used
 
-### **Solution 4: Auto-Detection**
-Delete both `railway.toml` and `Procfile` - let Railway auto-detect everything.
+### **Solution 3: Use Gunicorn (Production-Ready)**
+```
+# Procfile
+web: gunicorn main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+```
+✅ **Production server** - more robust than uvicorn
+✅ **Better for deployment** - handles workers and scaling
 
-## 🔧 **Troubleshooting Import Errors**
+## 🔧 **Quick Fix**
 
-If you see import/module errors:
-1. **Check requirements.txt** - make sure all dependencies are listed
-2. **Use `main_railway.py`** - has better error handling and debugging
-3. **Check Railway logs** - look for specific import error messages
-
-## 📋 **Quick Fix Steps**
-
-### Option A: Use Procfile (Recommended)
-```bash
-# Delete railway.toml to use Procfile instead
-rm railway.toml
-git add .
-git commit -m "Use Procfile for Railway deployment"
-git push
+**Current Procfile should work:**
+```
+web: python main.py
 ```
 
-### Option B: Use Railway-specific main
-```bash
-# Keep railway.toml but use main_railway.py
-git add .
-git commit -m "Add Railway-specific main file"
-git push
+If not, try the gunicorn approach:
 ```
+web: gunicorn main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+```
+
+## 📋 **Why This Happens**
+
+The issue occurs because:
+- Railway's shell doesn't expand `$PORT` in uvicorn commands
+- Using Python directly bypasses shell expansion
+- `main.py` handles `os.environ.get("PORT")` correctly
 
 ## 🧪 **Testing**
 Once deployed, test these endpoints:
