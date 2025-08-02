@@ -2,40 +2,43 @@
 
 ## Quick Deploy to Railway
 
-### Simple Deployment (Recommended for Example Projects)
-1. Use the simplified `Dockerfile.railway` 
-2. Deploy directly to Railway - should work out of the box!
+### 🚀 **FIXED: Port Variable Issue**
+
+If you're getting `Error: '${PORT' is not a valid port number`, try these solutions:
+
+#### **Solution 1: Use the Startup Script (Recommended)**
+```toml
+# railway.toml
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "python start_server.py"
+```
+
+#### **Solution 2: Shell Command Wrapper**
+```toml
+# railway.toml
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "sh -c 'uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}'"
+```
+
+#### **Solution 3: Remove railway.toml (Let Railway Auto-detect)**
+Delete the `railway.toml` file and let Railway automatically detect your Python app.
 
 ### Environment Configuration
-Railway will automatically detect your Python app. Optional environment variables:
+Railway will automatically set:
+- `PORT` - The port your app should listen on
+- `RAILWAY_*` - Various Railway-specific variables
 
-```bash
-# Optional Railway Environment Variables
-PORT=8000
-PYTHONUNBUFFERED=1
-```
-
-### Docker Configuration
-
-**Railway Dockerfile** (`Dockerfile.railway`): Simple and compatible
-- Uses `python:3.11-slim` (widely available)
-- Minimal configuration for maximum compatibility
-- Perfect for example/demo projects
-
-**Main Dockerfile**: More secure but complex
-- Multi-stage build with security features
-- Use this for production deployments
-
-### Quick Start
-```bash
-# Option 1: Rename the simple Dockerfile
-mv Dockerfile.railway Dockerfile
-git add . && git commit -m "Use simple Railway Dockerfile"
-git push
-
-# Option 2: Configure Railway to use the Railway Dockerfile
-# In Railway dashboard: Settings -> Build -> Dockerfile Path = "Dockerfile.railway"
-```
+### Quick Start Steps
+1. **Push your code** to GitHub
+2. **Connect to Railway** 
+3. **Choose one of the solutions above**
+4. **Deploy!**
 
 ### Testing
 Once deployed, test these endpoints:
@@ -43,3 +46,10 @@ Once deployed, test these endpoints:
 - **Health**: `https://your-app.railway.app/health`
 - **API Docs**: `https://your-app.railway.app/docs`
 - **Balance Check**: `https://your-app.railway.app/accounts/12345/balance`
+
+### Troubleshooting
+
+**Still getting port errors?**
+- Delete `railway.toml` completely
+- Railway will auto-detect your Python app
+- Should work with default settings

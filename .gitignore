@@ -387,6 +387,8 @@ site/
 # Dockerfile
 # Dockerfile.railway
 # RAILWAY_DEPLOY.md
+# railway.toml
+# start_server.py
 # docker-compose.yml
 # main.py
 # models.py
