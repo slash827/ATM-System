@@ -1,6 +1,6 @@
-# ATM System API
+# Bank System Website
 
-A robust, secure ATM (Automated Teller Machine) system built with FastAPI, featuring comprehensive financial operations, advanced security measures, and production-ready deployment. Includes both backend API and React frontend with PostgreSQL database support.
+A robust, secure Bank system built with FastAPI, featuring comprehensive financial operations, advanced security measures, and production-ready deployment. Includes both backend API and React frontend with PostgreSQL database support.
 
 ![Tests](https://img.shields.io/badge/tests-30%2B%20passing-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.11.2-blue)
@@ -632,12 +632,4 @@ pip install bandit safety
 ## 📝 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 👤 Author
-- GitHub: [@slash827](https://github.com/slash827)
-- Email: gilad.battat@gmail.com
-
----
-
-**Built using FastAPI**
 ```
