@@ -1,8 +1,7 @@
-import pytest
 from fastapi.testclient import TestClient
 from decimal import Decimal
-from main import app
-from database import db
+from backend.main import app
+from backend.database.test_db import db
 
 client = TestClient(app)
 

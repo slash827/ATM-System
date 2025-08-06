@@ -1,0 +1,124 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.exceptions import RequestValidationError
+import sys
+import os
+from pathlib import Path
+
+# Add current directory to Python path for Railway deployment
+current_dir = Path(__file__).parent
+sys.path.insert(0, str(current_dir))
+
+from routers import accounts_sqlite as accounts
+from exceptions import (
+    AccountNotFoundError, InsufficientFundsError, InvalidAmountError,
+    account_not_found_handler, insufficient_funds_handler, 
+    invalid_amount_handler, validation_exception_handler,
+    general_exception_handler
+)
+try:
+    from config import settings
+except ImportError:
+    # Fallback for deployment environments
+    class FallbackSettings:
+        app_name = "ATM System API"
+        debug = False
+        environment = "production"
+        log_level = "INFO"
+        allowed_hosts = ["*"]
+        is_production = True
+    settings = FallbackSettings()
+
+from datetime import datetime
+import logging
+
+# Import SQLite database components
+from database_sqlite import create_tables, seed_database
+
+# Configure logging
+logging.basicConfig(
+    level=getattr(logging, settings.log_level),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+
+# Create FastAPI app with production settings
+app = FastAPI(
+    title=settings.app_name,
+    description="A secure ATM system for account management with SQLite backend (demonstrating PostgreSQL features)",
+    version="1.0.0",
+    debug=settings.debug,  # Only True in development
+    docs_url="/docs" if not settings.is_production else None,  # Hide docs in production
+    redoc_url="/redoc" if not settings.is_production else None
+)
+
+# Security middleware
+app.add_middleware(
+    TrustedHostMiddleware, 
+    allowed_hosts=settings.allowed_hosts
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:5173", "http://localhost:5174", "http://localhost:5175"] if settings.debug else [],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
+
+# Register exception handlers
+app.add_exception_handler(AccountNotFoundError, account_not_found_handler)
+app.add_exception_handler(InsufficientFundsError, insufficient_funds_handler)
+app.add_exception_handler(InvalidAmountError, invalid_amount_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, general_exception_handler)
+
+# Include routers
+app.include_router(accounts.router)
+
+# Basic endpoints
+@app.get("/")
+async def root():
+    """Root endpoint"""
+    return {"message": "ATM System with SQLite (PostgreSQL-compatible) is running!"}
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now(),
+        "environment": settings.environment,
+        "debug": settings.debug,
+        "database": "SQLite (PostgreSQL-compatible structure)"
+    }
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database on startup"""
+    try:
+        # Create tables if they don't exist
+        create_tables()
+        
+        # Seed database with initial data
+        seed_database()
+        
+        logging.info("Database initialized successfully")
+    except Exception as e:
+        logging.error(f"Database initialization failed: {e}")
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    
+    # Using 8001 port to run alongside the original server
+    port = int(os.environ.get("PORT", 8001))
+    
+    print(f"Starting ATM System with SQLite (PostgreSQL features) on port {port}")
+    
+    uvicorn.run(
+        "main_sqlite:app", 
+        host="0.0.0.0", 
+        port=port,
+        reload=False  # False in production
+    )

@@ -1,8 +1,8 @@
 from fastapi.testclient import TestClient
-from main import app
+from backend.main import app
 import time
 
-client = TestClient(app)
+client = TestClient(app, raise_server_exceptions=False)
 
 class TestSecurityValidation:
     """Test security-related validations"""
@@ -100,9 +100,9 @@ class TestSecurityValidation:
         """Test race condition protection"""
         import threading
         
-        # Reset account balance
-        from database import db
-        db.accounts["123456"].balance = 1000.0
+        # Reset account balance using test database
+        from backend.database.test_db import db
+        db.reset_test_data()
         
         results = []
         

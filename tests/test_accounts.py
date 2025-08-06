@@ -1,14 +1,14 @@
-import pytest
 from fastapi.testclient import TestClient
-from main import app
-from database import db
+from backend.test_config import test_app
+from backend.database.test_db import db
 
 class TestAccountBalance:
     """Test balance-related operations"""
     
     def test_get_balance_existing_account(self):
         """Test getting balance for existing account"""
-        with TestClient(app) as client:
+        with TestClient(test_app, raise_server_exceptions=False) as client:
+            client.post("/accounts/test/reset")  # Reset database
             response = client.get("/accounts/123456/balance")
             assert response.status_code == 200
             data = response.json()
@@ -18,7 +18,8 @@ class TestAccountBalance:
     
     def test_get_balance_nonexistent_account(self):
         """Test getting balance for non-existent account"""
-        with TestClient(app) as client:
+        with TestClient(test_app, raise_server_exceptions=False) as client:
+            client.post("/accounts/test/reset")  # Reset database
             response = client.get("/accounts/999999/balance")
             assert response.status_code == 404
             data = response.json()
@@ -28,15 +29,10 @@ class TestAccountBalance:
 class TestWithdrawal:
     """Test withdrawal operations"""
     
-    def setup_method(self):
-        """Reset account balance before each test"""
-        # Reset test account to known state
-        db.accounts["123456"].balance = 1000.0
-        db.accounts["123456"].last_transaction = None
-    
     def test_successful_withdrawal(self):
         """Test successful withdrawal"""
-        with TestClient(app) as client:
+        with TestClient(test_app, raise_server_exceptions=False) as client:
+            client.post("/accounts/test/reset")  # Reset database
             withdrawal_data = {"amount": 200.0}
             response = client.post("/accounts/123456/withdraw", json=withdrawal_data)
             
@@ -51,7 +47,8 @@ class TestWithdrawal:
     
     def test_insufficient_funds_withdrawal(self):
         """Test withdrawal with insufficient funds"""
-        with TestClient(app) as client:
+        with TestClient(test_app, raise_server_exceptions=False) as client:
+            client.post("/accounts/test/reset")  # Reset database
             withdrawal_data = {"amount": 1500.0}  # More than balance
             response = client.post("/accounts/123456/withdraw", json=withdrawal_data)
             
@@ -63,7 +60,8 @@ class TestWithdrawal:
     
     def test_negative_amount_withdrawal(self):
         """Test withdrawal with negative amount"""
-        with TestClient(app) as client:
+        with TestClient(test_app, raise_server_exceptions=False) as client:
+            client.post("/accounts/test/reset")  # Reset database
             withdrawal_data = {"amount": -100.0}
             response = client.post("/accounts/123456/withdraw", json=withdrawal_data)
             
@@ -73,7 +71,8 @@ class TestWithdrawal:
     
     def test_zero_amount_withdrawal(self):
         """Test withdrawal with zero amount"""
-        with TestClient(app) as client:
+        with TestClient(test_app, raise_server_exceptions=False) as client:
+            client.post("/accounts/test/reset")  # Reset database
             withdrawal_data = {"amount": 0.0}
             response = client.post("/accounts/123456/withdraw", json=withdrawal_data)
             
@@ -81,7 +80,8 @@ class TestWithdrawal:
     
     def test_withdrawal_nonexistent_account(self):
         """Test withdrawal from non-existent account"""
-        with TestClient(app) as client:
+        with TestClient(test_app, raise_server_exceptions=False) as client:
+            client.post("/accounts/test/reset")  # Reset database
             withdrawal_data = {"amount": 100.0}
             response = client.post("/accounts/999999/withdraw", json=withdrawal_data)
             
@@ -92,14 +92,10 @@ class TestWithdrawal:
 class TestDeposit:
     """Test deposit operations"""
     
-    def setup_method(self):
-        """Reset account balance before each test"""
-        db.accounts["123456"].balance = 1000.0
-        db.accounts["123456"].last_transaction = None
-    
     def test_successful_deposit(self):
         """Test successful deposit"""
-        with TestClient(app) as client:
+        with TestClient(test_app, raise_server_exceptions=False) as client:
+            client.post("/accounts/test/reset")  # Reset database
             deposit_data = {"amount": 300.0}
             response = client.post("/accounts/123456/deposit", json=deposit_data)
             
@@ -113,7 +109,8 @@ class TestDeposit:
     
     def test_large_deposit(self):
         """Test large deposit amount"""
-        with TestClient(app) as client:
+        with TestClient(test_app, raise_server_exceptions=False) as client:
+            client.post("/accounts/test/reset")  # Reset database
             deposit_data = {"amount": 10000.0}
             response = client.post("/accounts/123456/deposit", json=deposit_data)
             
@@ -123,7 +120,8 @@ class TestDeposit:
     
     def test_negative_amount_deposit(self):
         """Test deposit with negative amount"""
-        with TestClient(app) as client:
+        with TestClient(test_app, raise_server_exceptions=False) as client:
+            client.post("/accounts/test/reset")  # Reset database
             deposit_data = {"amount": -100.0}
             response = client.post("/accounts/123456/deposit", json=deposit_data)
             
@@ -131,7 +129,8 @@ class TestDeposit:
     
     def test_deposit_nonexistent_account(self):
         """Test deposit to non-existent account"""
-        with TestClient(app) as client:
+        with TestClient(test_app, raise_server_exceptions=False) as client:
+            client.post("/accounts/test/reset")  # Reset database
             deposit_data = {"amount": 100.0}
             response = client.post("/accounts/999999/deposit", json=deposit_data)
             
@@ -140,13 +139,10 @@ class TestDeposit:
 class TestTransactionSequence:
     """Test multiple transactions in sequence"""
     
-    def setup_method(self):
-        """Reset account balance before each test"""
-        db.accounts["123456"].balance = 1000.0
-    
     def test_deposit_then_withdraw(self):
         """Test deposit followed by withdrawal"""
-        with TestClient(app) as client:
+        with TestClient(test_app, raise_server_exceptions=False) as client:
+            client.post("/accounts/test/reset")  # Reset database
             # First deposit
             deposit_data = {"amount": 500.0}
             response = client.post("/accounts/123456/deposit", json=deposit_data)
@@ -161,7 +157,8 @@ class TestTransactionSequence:
     
     def test_multiple_small_withdrawals(self):
         """Test multiple small withdrawals"""
-        with TestClient(app) as client:
+        with TestClient(test_app, raise_server_exceptions=False) as client:
+            client.post("/accounts/test/reset")  # Reset database
             for i in range(5):
                 withdrawal_data = {"amount": 100.0}
                 response = client.post("/accounts/123456/withdraw", json=withdrawal_data)
@@ -171,7 +168,8 @@ class TestTransactionSequence:
     
     def test_empty_account_scenario(self):
         """Test operations on empty account"""
-        with TestClient(app) as client:
+        with TestClient(test_app, raise_server_exceptions=False) as client:
+            client.post("/accounts/test/reset")  # Reset database
             # Use empty account
             response = client.get("/accounts/555444/balance")
             assert response.json()["balance"] == 0.0
