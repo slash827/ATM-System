@@ -1,11 +1,12 @@
 # ATM System API
 
-A robust, secure ATM (Automated Teller Machine) system built with FastAPI, featuring comprehensive financial operations, advanced security measures, and production-ready Docker deployment.
+A robust, secure ATM (Automated Teller Machine) system built with FastAPI, featuring comprehensive financial operations, advanced security measures, and production-ready deployment. Includes both backend API and React frontend with PostgreSQL database support.
 
-![Tests](https://img.shields.io/badge/tests-43%2F43%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-30%2B%20passing-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.11.2-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115.12-green)
-![Pydantic](https://img.shields.io/badge/Pydantic-2.11.5-orange)
+![React](https://img.shields.io/badge/React-18.3.1-blue)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.6.3-blue)
 ![Security](https://img.shields.io/badge/Docker-Hardened-blue)
 
 ## 🏧 Features
@@ -14,7 +15,15 @@ A robust, secure ATM (Automated Teller Machine) system built with FastAPI, featu
 - **Account Balance Inquiry** - Check current account balance with precise decimal handling
 - **Money Withdrawal** - Secure withdrawals with balance validation and transaction logging
 - **Money Deposit** - Fund deposits with amount validation and audit trails
-- **Transaction History** - Timestamp tracking for all operations
+- **Money Transfer** - Transfer funds between accounts with validation
+- **Time Deposits** - Create and manage fixed-term deposits with interest calculation
+
+### Frontend Application
+- **React/TypeScript UI** - Modern, responsive web interface
+- **Real-time Updates** - Live balance updates and transaction feedback
+- **Dashboard** - Comprehensive account overview with quick actions
+- **Responsive Design** - Mobile-friendly interface with Tailwind CSS
+- **Error Handling** - User-friendly error messages and validation
 
 ### Security & Validation
 - **Financial Precision** - Decimal-based arithmetic to avoid floating-point errors
@@ -25,9 +34,10 @@ A robust, secure ATM (Automated Teller Machine) system built with FastAPI, featu
 
 ### Development & Deployment
 - **API Documentation** - Auto-generated interactive docs with OpenAPI 3.0
-- **Comprehensive Testing** - 43 tests covering all scenarios and edge cases
+- **Comprehensive Testing** - 30+ tests covering all scenarios and edge cases
 - **Docker Security** - Hardened multi-stage builds with distroless runtime
 - **Production Ready** - Environment-based configuration and monitoring
+- **Database Support** - SQLite for development, PostgreSQL for production
 
 ## 🛠️ **Major Updates & Improvements**
 
@@ -128,31 +138,50 @@ FROM gcr.io/distroless/python3-debian12:nonroot
 
 ## 📁 **Project Structure**
 ```
-atm-system/
-├── main.py                     # FastAPI application entry point
-├── models.py                   # Pydantic v2 models with Decimal precision
-├── database.py                 # In-memory storage with Decimal handling
-├── security.py                 # Security middleware (CORS, rate limiting)
-├── config.py                   # Environment-based configuration
-├── exceptions.py               # Custom exceptions with JSON serialization
-├── routers/
-│   ├── __init__.py
-│   └── accounts.py             # ATM endpoints with path validation
-├── tests/                      # Comprehensive test suite (43 tests)
-│   ├── __init__.py
-│   ├── test_main.py            # Basic app tests (4 tests)
-│   ├── test_accounts.py        # ATM endpoint tests (14 tests)
-│   ├── test_decimal_precision.py # Financial precision tests (13 tests)
-│   └── test_security.py        # Security validation tests (12 tests)
-├── pytest.ini                 # Test configuration
-├── requirements.txt            # Pinned dependencies (production-ready)
-├── Dockerfile                  # Hardened multi-stage Docker build
-├── Dockerfile.secure           # Ultra-secure Chainguard alternative
-├── docker-compose.secure.yml   # Production deployment configuration
-├── .dockerignore              # Docker build optimization
-├── DOCKER_SECURITY.md         # Docker security documentation
-├── verify_compatibility.py    # Environment verification script
-└── README.md                  # Comprehensive documentation
+ATM-System/
+├── backend/                    # Backend API (FastAPI)
+│   ├── api/                   # API endpoints and routers
+│   │   ├── accounts.py        # Account operations API
+│   │   └── __init__.py
+│   ├── core/                  # Core application components
+│   │   ├── config.py          # Configuration management
+│   │   ├── exceptions.py      # Custom exception handlers
+│   │   └── security.py        # Security utilities
+│   ├── database/              # Database implementations
+│   │   ├── postgresql.py      # PostgreSQL models and setup
+│   │   ├── test_db.py         # Test database interface
+│   │   └── __init__.py
+│   ├── models/                # Data models and schemas
+│   │   └── __init__.py
+│   ├── utils/                 # Utility functions
+│   ├── main.py                # FastAPI application entry point
+│   └── test_config.py         # Test configuration
+├── atm-frontend/              # React frontend application
+│   ├── src/
+│   │   ├── components/        # React components
+│   │   │   ├── pages/         # Page components (Dashboard, etc.)
+│   │   │   └── ui/            # UI components (Button, Card, etc.)
+│   │   ├── context/           # React context providers
+│   │   ├── services/          # API service layer
+│   │   ├── types/             # TypeScript type definitions
+│   │   └── App.tsx            # Main React application
+│   ├── package.json           # Node.js dependencies
+│   └── vite.config.ts         # Vite build configuration
+├── tests/                     # Comprehensive test suite
+│   ├── api/                   # API integration tests
+│   ├── integration/           # System integration tests
+│   ├── unit/                  # Unit tests
+│   ├── test_accounts.py       # Account endpoint tests (14 tests)
+│   ├── test_security.py       # Security validation tests (12 tests)
+│   └── test_main.py           # Basic application tests (4 tests)
+├── deployment/                # Deployment configurations
+├── docs/                      # Project documentation
+├── legacy/                    # Legacy files (for reference)
+├── scripts/                   # Utility scripts
+├── requirements.txt           # Python dependencies
+├── docker-compose.yml         # Docker orchestration
+├── Dockerfile                 # Container configuration
+└── README.md                  # Project documentation
 ```
 
 ## 🚀 Quick Start
@@ -191,15 +220,28 @@ pip install -r requirements.txt
 python verify_compatibility.py
 ```
 
-5. **Run the server**
+5. **Run the backend server**
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# Development mode with auto-reload
+cd backend
+python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+# Or from project root
+python -m backend.main
 ```
 
-6. **Access the API**
-- **API Documentation**: http://localhost:8000/docs
-- **Alternative Docs**: http://localhost:8000/redoc
-- **Health Check**: http://localhost:8000/health
+6. **Run the frontend (optional)**
+```bash
+cd atm-frontend
+npm install
+npm run dev
+```
+
+7. **Access the applications**
+- **Backend API Documentation**: http://localhost:8000/docs
+- **Backend Alternative Docs**: http://localhost:8000/redoc
+- **Backend Health Check**: http://localhost:8000/health
+- **Frontend Application**: http://localhost:5173 (if running)
 
 ## 📚 API Documentation
 
@@ -340,16 +382,16 @@ curl -X POST "http://localhost:8000/accounts/123456/deposit" \
 
 ## 🧪 Testing
 
-### Run All Tests (43 comprehensive tests)
+### Run All Tests (30+ comprehensive tests)
 ```bash
 # Run all tests with verbose output
-pytest -v
+python -m pytest tests/ -v
 
 # Quick test run
-pytest -q
+python -m pytest tests/ -q
 
 # Run with coverage report
-pytest --cov=. --cov-report=html
+python -m pytest tests/ --cov=backend --cov-report=html
 ```
 
 ### Test Categories
@@ -357,36 +399,45 @@ pytest --cov=. --cov-report=html
 #### 1. Account Operations (14 tests)
 ```bash
 # Test balance operations
-pytest tests/test_accounts.py::TestAccountBalance -v
+python -m pytest tests/test_accounts.py::TestAccountBalance -v
 
 # Test withdrawal operations  
-pytest tests/test_accounts.py::TestWithdrawal -v
+python -m pytest tests/test_accounts.py::TestWithdrawal -v
 
 # Test deposit operations
-pytest tests/test_accounts.py::TestDeposit -v
+python -m pytest tests/test_accounts.py::TestDeposit -v
 
 # Test transaction sequences
-pytest tests/test_accounts.py::TestTransactionSequence -v
+python -m pytest tests/test_accounts.py::TestTransactionSequence -v
 ```
 
-#### 2. Decimal Precision (13 tests)
-```bash
-# Test financial precision and security
-pytest tests/test_decimal_precision.py -v
-
-# Specific precision tests
-pytest tests/test_decimal_precision.py::TestFinancialArithmetic -v
-pytest tests/test_decimal_precision.py::TestFinancialSecurityScenarios -v
-```
-
-#### 3. Security Validation (12 tests)
+#### 2. Security Validation (12 tests)
 ```bash
 # Test security features
-pytest tests/test_security.py -v
+python -m pytest tests/test_security.py -v
 
 # Specific security categories
-pytest tests/test_security.py::TestSecurityValidation -v
-pytest tests/test_security.py::TestInputSanitization -v
+python -m pytest tests/test_security.py::TestSecurityValidation -v
+python -m pytest tests/test_security.py::TestInputSanitization -v
+```
+
+#### 3. Integration Tests
+```bash
+# Test PostgreSQL setup
+python -m pytest tests/integration/test_postgresql_setup.py -v
+
+# Test frontend-backend integration  
+python -m pytest tests/integration/test_frontend_backend.py -v
+```
+
+### Frontend Tests
+```bash
+# Run frontend tests
+cd atm-frontend
+npm test
+
+# Run with coverage
+npm run test:coverage
 ```
 
 ### Environment Verification
@@ -396,31 +447,32 @@ python verify_compatibility.py
 ```
 
 ### Test Results Summary
-- ✅ **43/43 tests passing** (100% success rate)
+- ✅ **30+ tests passing** (100% success rate)
 - ✅ **Account Operations**: All CRUD operations working
-- ✅ **Financial Precision**: Decimal arithmetic validated  
 - ✅ **Security**: XSS prevention, input validation confirmed
 - ✅ **Error Handling**: Proper exception management verified
+- ✅ **Integration**: Frontend-backend communication tested
 
 ## 🏗️ Architecture
 
 ### Project Structure
-- **main.py** - FastAPI application setup and configuration
-- **models.py** - Pydantic data models for request/response validation
-- **database.py** - In-memory data storage and management
-- **routers/accounts.py** - ATM endpoint implementations
-- **exceptions.py** - Custom exception classes and handlers
-- **tests/** - Comprehensive test suite
+- **backend/** - FastAPI application with organized modules
+- **atm-frontend/** - React/TypeScript frontend application
+- **tests/** - Comprehensive test suite organized by category
+- **backend/api/** - RESTful API endpoints and business logic
+- **backend/core/** - Core configuration, security, and exception handling
+- **backend/database/** - Database implementations and models
 
 ### Design Decisions
 
-1. **Financial Precision** - Decimal-based arithmetic instead of floats to prevent rounding errors
-2. **Pydantic v2** - Latest validation framework with enhanced type safety and performance
-3. **In-Memory Storage** - Dictionary-based storage for demo purposes (easily replaceable with database)
-4. **Exception Handling** - Custom exceptions with proper HTTP status codes and secure error messages
-5. **Modular Architecture** - Separated concerns with clear file organization and dependency injection
-6. **Comprehensive Testing** - 43 tests covering all scenarios, edge cases, and security vulnerabilities
-7. **Docker Security** - Multi-stage builds with distroless runtime for minimal attack surface
+1. **Modular Architecture** - Clean separation between frontend and backend
+2. **Financial Precision** - Decimal-based arithmetic instead of floats to prevent rounding errors
+3. **Database Flexibility** - Support for both SQLite (development) and PostgreSQL (production)
+4. **Test Organization** - Structured test suite with proper isolation using API reset endpoints
+5. **Exception Handling** - Custom exceptions with proper HTTP status codes and secure error messages
+6. **Frontend Architecture** - Component-based React with TypeScript for type safety
+7. **Security First** - Comprehensive input validation and XSS prevention
+8. **Docker Ready** - Multi-stage builds with distroless runtime for minimal attack surface
 
 ### Security Features
 - **Input Validation**: Strict Pydantic models with pattern matching
@@ -532,12 +584,21 @@ For production deployment, consider these environment variables:
 
 ### Current Production Dependencies
 ```txt
+# Backend Dependencies
 fastapi==0.115.12        # Latest FastAPI with security patches
 uvicorn[standard]==0.34.2 # High-performance ASGI server
 pydantic==2.11.5         # Data validation with Pydantic v2
+sqlalchemy==2.0.35       # ORM for database operations
+psycopg2-binary==2.9.9   # PostgreSQL adapter
 pytest==7.4.3           # Testing framework
 httpx==0.25.2            # HTTP client for testing
 pytest-asyncio==0.21.1  # Async testing support
+
+# Frontend Dependencies  
+react==18.3.1            # React framework
+typescript==5.6.3        # TypeScript for type safety
+vite==5.4.9              # Build tool and dev server
+tailwindcss==3.4.17      # Utility-first CSS framework
 ```
 
 ### Version Compatibility Matrix
@@ -546,7 +607,9 @@ pytest-asyncio==0.21.1  # Async testing support
 | Python | 3.11.2 | 3.11.2 | ✅ Matched |
 | FastAPI | 0.115.12 | 0.115.12 | ✅ Matched |
 | Pydantic | 2.11.5 | 2.11.5 | ✅ Matched |
-| Uvicorn | 0.34.2 | 0.34.2 | ✅ Matched |
+| PostgreSQL | 15+ | 15+ | ✅ Matched |
+| Node.js | 18+ | 18+ | ✅ Matched |
+| React | 18.3.1 | 18.3.1 | ✅ Matched |
 
 ### Security Dependencies
 - **Decimal** - Financial precision (Python stdlib)

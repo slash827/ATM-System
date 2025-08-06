@@ -3,17 +3,19 @@
 ## 1. Project Overview
 
 ### 1.1 Purpose
-Develop a modern, secure, and user-friendly web frontend for the ATM System API using React and TypeScript. The frontend will provide an intuitive interface for users to perform banking operations including balance inquiries, withdrawals, and deposits.
+Develop a modern, secure, and user-friendly web frontend for the ATM System API using React and TypeScript. The frontend provides an intuitive interface for users to perform banking operations including balance inquiries, withdrawals, deposits, transfers, and time deposit management.
 
 ### 1.2 Scope
-- **In Scope**: Web application for ATM operations, responsive design, real-time API integration
+- **In Scope**: Web application for ATM operations, responsive design, real-time API integration, React/TypeScript implementation
+- **Implemented Features**: Dashboard, account operations, time deposits, responsive UI components
 - **Out of Scope**: Mobile app, admin dashboard, user registration/authentication (using mock account system)
 
 ### 1.3 Success Metrics
 - **Performance**: < 2 seconds page load time
-- **Accessibility**: WCAG 2.1 AA compliance
+- **Accessibility**: WCAG 2.1 AA compliance  
 - **Browser Support**: Chrome, Firefox, Safari, Edge (latest 2 versions)
 - **Responsive**: Mobile-first design supporting 320px+ screen widths
+- **Type Safety**: Full TypeScript implementation with strict type checking
 
 ## 2. User Stories & Requirements
 

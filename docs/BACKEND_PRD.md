@@ -142,27 +142,50 @@ GET /
 
 ### 4.1 Technology Stack
 - **Framework**: FastAPI (Python 3.11+)
-- **Database**: SQLite with SQLAlchemy ORM
+- **Database**: PostgreSQL with SQLAlchemy ORM (SQLite for development)
 - **Validation**: Pydantic v2 for data models
 - **Testing**: Pytest with comprehensive test coverage
 - **Documentation**: Automatic OpenAPI/Swagger generation
 - **Deployment**: Docker containerization with Railway hosting
+- **Frontend**: React/TypeScript with Vite build system
 
 ### 4.2 Application Structure
 ```
-/
+backend/
 ├── main.py                 # FastAPI application entry point
-├── models.py              # Pydantic data models
-├── database.py            # Database configuration and models
-├── config.py              # Application configuration
-├── security.py            # Security utilities and middleware
-├── exceptions.py          # Custom exception handlers
-├── routers/
-│   └── accounts.py        # Account-related endpoints
-├── tests/                 # Comprehensive test suite
-├── requirements.txt       # Python dependencies
-├── Dockerfile            # Container configuration
-└── README.md             # Project documentation
+├── test_config.py          # Test configuration setup
+├── api/                    # API endpoints and routers
+│   ├── __init__.py
+│   └── accounts.py         # Account-related endpoints
+├── core/                   # Core application components
+│   ├── __init__.py
+│   ├── config.py           # Application configuration
+│   ├── exceptions.py       # Custom exception handlers
+│   └── security.py         # Security utilities and middleware
+├── database/               # Database implementations
+│   ├── __init__.py
+│   ├── postgresql.py       # PostgreSQL models and setup
+│   └── test_db.py          # Test database interface
+├── models/                 # Data models and schemas
+│   └── __init__.py
+└── utils/                  # Utility functions
+
+tests/                      # Comprehensive test suite
+├── api/                    # API integration tests
+├── integration/            # System integration tests
+├── unit/                   # Unit tests
+├── test_accounts.py        # Account operations tests
+├── test_security.py        # Security validation tests
+└── test_main.py            # Main application tests
+
+atm-frontend/               # React/TypeScript frontend
+├── src/
+│   ├── components/         # React components
+│   ├── context/            # React context providers
+│   ├── services/           # API service layer
+│   └── types/              # TypeScript definitions
+├── package.json            # Node.js dependencies
+└── vite.config.ts          # Build configuration
 ```
 
 ### 4.3 Database Schema
@@ -256,10 +279,17 @@ class InvalidAmountError(HTTPException):
 ### 7.2 Test Categories
 ```
 tests/
-├── test_main.py           # Main application tests (4 tests)
+├── api/                   # API integration tests
+├── integration/           # System integration tests
+│   ├── test_postgresql_setup.py  # Database setup tests
+│   └── test_frontend_backend.py  # Frontend-backend integration
+├── unit/                  # Unit tests
+│   ├── test_database.py   # Database unit tests
+│   ├── test_models.py     # Model validation tests
+│   └── test_imports.py    # Import validation tests
 ├── test_accounts.py       # Account operations tests (14 tests)
-├── test_security.py       # Security and validation tests (11 tests)
-└── test_decimal_precision.py # Financial precision tests (14 tests)
+├── test_security.py       # Security and validation tests (12 tests)
+└── test_main.py           # Main application tests (4 tests)
 ```
 
 ### 7.3 Test Data

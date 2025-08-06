@@ -15,9 +15,26 @@
    - Runs as non-root user by default
    - Minimal attack surface
 
+# Docker Security Analysis & Improvements
+
+## Current Security Status
+
+### ✅ Implemented Security Measures
+
+1. **Multi-Stage Build**
+   - Separates build dependencies from runtime
+   - Reduces final image size and attack surface
+   - Removes build tools from production image
+
+2. **Distroless Runtime Image**
+   - Uses Google's distroless Python image
+   - No shell, package manager, or unnecessary binaries
+   - Runs as non-root user by default
+   - Minimal attack surface
+
 3. **Dependency Management**
    - Virtual environment isolation
-   - Pinned Python version (3.12.8)
+   - Pinned Python version (3.11.2) - matches development environment
    - Updated packages and security patches
    - pip audit for vulnerability scanning
 
@@ -29,6 +46,8 @@
 
 5. **File System Security**
    - .dockerignore excludes sensitive files
+   - Minimal file copying from backend/ directory only
+   - No unnecessary development files
    - Minimal file copying
    - No unnecessary development files
 
